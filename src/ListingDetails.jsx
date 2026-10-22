@@ -1,4 +1,9 @@
+import { openChat } from './telegram'
 function ListingDetails({ item, onBack }) {
+    function handleContact() {
+        if (item.owner_username) openChat(item.owner_username)
+        else alert('У автора нет username в Telegram, связаться пока нельзя.')
+    }
   return (
     <div>
       <button
@@ -47,6 +52,7 @@ function ListingDetails({ item, onBack }) {
             fontSize: 15,
             cursor: 'pointer',
           }}
+          onClick={handleContact}
         >
           Написать в Telegram
         </button>

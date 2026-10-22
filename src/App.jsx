@@ -4,14 +4,21 @@ import ListingDetails from './ListingDetails'
 import ListingForm from './ListingForm'
 import { categories } from './data'
 import { fetchListings, createListing } from './api'
+import { initTelegram, getTelegramUser } from './telegram'
 
 function App() {
+  const user = getTelegramUser()
+
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [category, setCategory] = useState('all')
   const [selectedId, setSelectedId] = useState(null)
   const [showForm, setShowForm] = useState(false)
+
+  useEffect(() => {
+    initTelegram()
+  }, [])
 
   useEffect(() => {
     fetchListings()
@@ -27,7 +34,11 @@ function App() {
 
   async function addListing(form) {
     try {
-      const created = await createListing(form)
+      const created = await createListing({
+        ...form,
+        owner_telegram_id: user?.id ?? null,
+        owner_username: user?.username ?? null,
+      })
       setItems([created, ...items])
       setShowForm(false)
     } catch (e) {
@@ -61,6 +72,14 @@ function App() {
             + Подать
           </button>
         </div>
+
+        {user && <p>Привет, {user.first_name}!</p>}
+        {user && !user.username && (
+          <p style={{ color: '#a12632' }}>
+            В Telegram не задан username, поэтому с вами не смогут связаться.
+            Задайте его в настройках Telegram.
+          </p>
+        )}
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
           {categories.map((c) => (
